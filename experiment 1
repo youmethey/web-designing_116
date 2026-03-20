@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TIK TAK TIK TAK</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #cf8fdc;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    #game {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 5px;
+      justify-content: center;
+      margin: 20px auto;
+      position: relative;
+    }
+
+    .cell {
+      background: rgb(139, 155, 224);
+      border: 2px solid #adcb71;
+      font-size: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .cell.taken {
+      cursor: not-allowed;
+    }
+
+    #status {
+      margin: 30px;
+      font-weight: extra bold;
+    }
+
+    button {
+      padding: 50, 100px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    .winning-line {
+      position: absolute;
+      background: linear-gradient(to right, #ff6b6b, #ffd700);
+      animation: cutLine 2s ease-in-out forwards;
+    }
+
+    @keyframes cutLine {
+      0% {
+        transform: scaleX(0);
+        opacity: 1;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: scaleX(1);
+        opacity: 0;
+      }
+    }
+
+    .cell.winning {
+      animation: winFlash 0.6s ease-in-out infinite;
+    }
+
+    @keyframes winFlash {
+      0%, 100% {
+        background: rgb(139, 155, 224);
+      }
+      50% {
+        background: #c2316b;
+        box-shadow: 0 0 10px #942e2e;
+      }
+    }
+
+    .cell.draw-glitter {
+      animation: glitter 0.6s ease-in-out infinite;
+    }
+
+    @keyframes glitter {
+      0%, 100% {
+        background: rgb(139, 155, 224);
+        box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+      }
+      50% {
+        background: #682087;
+        box-shadow: 0 0 20px rgb(219, 51, 208), inset 0 0 10px rgba(255, 255, 255, 0.8);
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>TIK TAK TIK TAK</h1>
+  <div id="game">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
+  <p id="status"> S shreya turn</p>
+  <button id="reset">again start the Game</button>
+
+  <script>
+    const cells = document.querySelectorAll(".cell");
+    const statusText = document.getElementById("status");
+    const resetBtn = document.getElementById("reset");
+    const gameContainer = document.getElementById("game");
+
+    let currentPlayer = "S";
+    let board = ["", "", "", "", "", "", "", "", ""];
+    let running = true;
+
+    const winConditions = [
+      [0,1,2], [3,4,5], [6,7,8], // rows
+      [0,3,6], [1,4,7], [2,5,8], // columns
+      [0,4,8], [2,4,6]           // diagonals
+    ];
+
+    cells.forEach(cell => cell.addEventListener("click", cellClicked));
+    resetBtn.addEventListener("click", resetGame);
+
+    function cellClicked() {
+      const index = this.dataset.index;
+      if(board[index] !== "" || !running) return;
+
+      board[index] = currentPlayer;
+      this.textContent = currentPlayer;
+      this.classList.add("taken");
+
+      checkWinner();
+    }
+
+    function checkWinner() {
+      let roundWon = false;
+      let winningCondition = null;
+
+      for(let condition of winConditions){
+        const [a,b,c] = condition;
+        if(board[a] && board[a] === board[b] && board[a] === board[c]){
+          roundWon = true;
+          winningCondition = condition;
+          break;
+        }
+      }
+
+      if(roundWon){
+        drawWinningLine(winningCondition);
+        winningCondition.forEach(index => cells[index].classList.add("winning"));
+        statusText.textContent = `Player ${currentPlayer} wins!`;
+        running = false;
+      } else if(!board.includes("")){
+        statusText.textContent = "It's a draw!";
+        addDrawGlitter();
+        running = false;
+      } else {
+        currentPlayer = (currentPlayer === "S") ? "U" : "S";
+        statusText.textContent = `Player ${currentPlayer}'s turn`;
+      }
+    }
+
+    function drawWinningLine(condition) {
+      const [a, b, c] = condition;
+      const cellA = cells[a];
+      const cellB = cells[c];
+      
+      const rectA = cellA.getBoundingClientRect();
+      const rectB = cellB.getBoundingClientRect();
+      const gameRect = gameContainer.getBoundingClientRect();
+
+      const x1 = rectA.left - gameRect.left + rectA.width / 2;
+      const y1 = rectA.top - gameRect.top + rectA.height / 2;
+      const x2 = rectB.left - gameRect.left + rectB.width / 2;
+      const y2 = rectB.top - gameRect.top + rectB.height / 2;
+
+      const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+      const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+
+      const line = document.createElement("div");
+      line.className = "winning-line";
+      line.style.width = length + "px";
+      line.style.height = "4px";
+      line.style.left = x1 + "px";
+      line.style.top = y1 + "px";
+      line.style.transform = `rotate(${angle}deg)`;
+      line.style.transformOrigin = "0 0";
+
+      gameContainer.appendChild(line);
+
+      setTimeout(() => line.remove(), 2000);
+    }
+
+    function addDrawGlitter() {
+      cells.forEach(cell => {
+        cell.classList.add("draw-glitter");
+      });
+
+      setTimeout(() => {
+        cells.forEach(cell => {
+          cell.classList.remove("draw-glitter");
+        });
+      }, 2000);
+    }
+
+    function resetGame() {
+      currentPlayer = "S";
+      board = ["", "", "", "", "", "", "", "", ""];
+      running = true;
+      statusText.textContent = `Player ${currentPlayer}'s turn`;
+      cells.forEach(cell => {
+        cell.textContent = "";
+        cell.classList.remove("taken", "winning", "draw-glitter");
+      });
+      document.querySelectorAll(".winning-line").forEach(line => line.remove());
+    }
+  </script>
+</body>
+</html>
