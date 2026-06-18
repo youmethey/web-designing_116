@@ -1,0 +1,163 @@
+LMS-Project
+│
+├── backend (Java Spring Boot)
+│   ├── StudentController.java
+│   ├── Student.java
+│   └── application.properties
+│
+└── frontend (React)
+    ├── App.js
+    ├── Login.js
+    ├── Dashboard.js
+    ├── App.css
+    └── index.js
+package com.lms.model;
+
+public class Student {
+    private int id;
+    private String name;
+    private String email;
+
+    public Student() {}
+
+    public Student(int id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+package com.lms.controller;
+
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+
+@RestController
+@RequestMapping("/students")
+@CrossOrigin(origins = "*")
+public class StudentController {
+
+    @GetMapping
+    public List<String> getStudents() {
+        List<String> students = new ArrayList<>();
+        students.add("Shreya");
+        students.add("Rahul");
+        students.add("Priya");
+        return students;
+server.port=8080
+    }
+}
+    }
+}
+import React from "react";
+import "./App.css";
+
+function App() {
+  return (
+    <div className="container">
+      <h1>Student Learning Management System</h1>
+
+      <div className="login-box">
+        <h2>Student Login</h2>
+
+        <input type="email" placeholder="Enter Email" />
+        <input type="password" placeholder="Enter Password" />
+
+        <button>Login</button>
+      </div>
+
+      <div className="dashboard">
+        <h2>Dashboard</h2>
+        <ul>
+          <li>Java Programming</li>
+          <li>Web Development</li>
+          <li>React Development</li>
+          <li>Data Structures</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+body {
+  font-family: Arial;
+  background: #f4f4f4;
+}
+
+.container {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.login-box {
+  width: 350px;
+  margin: auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px gray;
+}
+
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 10px;
+}
+
+button {
+  width: 95%;
+  padding: 10px;
+  background: blue;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.dashboard {
+  width: 400px;
+  margin: 30px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  padding: 10px;
+  background: #e6e6e6;
+  margin: 5px;
+}
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+const root = ReactDOM.createRoot(
+  document.getElementById("root")
+);
+
+root.render(<App />);
